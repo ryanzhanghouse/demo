@@ -16,6 +16,22 @@ describe "Static Pages" do
     let(:page_title) { '' }
     it_should_behave_like "all static pages"
     it { should_not have_title('| Home') }
+
+    describe "for signed-in users" do
+      let(:user) { FactoryGirl.create(:user) }
+      before do
+        FactoryGirl.create(:micropost, user: user, content: "Lorem ipsum")
+        FactoryGirl.create(:micropost, user: user, content: "Dolor sit amet")
+        sign_in user
+        visit root_path
+      end
+
+      it "should render the user's feed" do
+        user.feed.each do |item|
+          expect(page).to have_selector("li##{item.id}", text: item.content)
+        end
+      end
+    end
   end
 
   describe "Help page" do
@@ -37,6 +53,22 @@ describe "Static Pages" do
 
   	it { should have_selector('h1', text: 'Contact') }
   	it { should have_title('Contact') }
+  end
+
+  describe "profile page" do
+    let(:user) { FactoryGirl.create(:user) }
+    let!(:ml) { FactoryGirl.create(:micropost, user: user, content: "Foo") }
+    let!(:ml) { FactoryGirl.create(:micropost, user: user, content: "Bar") }
+    before { visit user_path(user) }
+
+    it { should have_content(user.name) }
+    it { should have_title(user.name) }
+
+    describe "microposts" do
+      it { should have_content(m1.content) }
+      it { should have_content(m2.content) }
+      it { should have_content(user.microposts.count) }
+    end
   end
 
   it "should have the right links on the layout" do
