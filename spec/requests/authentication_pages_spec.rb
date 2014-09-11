@@ -116,6 +116,16 @@ describe "AuthenticationPages" do
               before { visit users_path }
               it { should have_title('Sign in') }
             end
+
+            describe "visiting the following page" do
+              before { visit following_user_path(user) }
+              it { should have_title('Sign in') }
+            end
+
+            describe "visiting the followers page" do
+              before { visit follower_user_path(user) }
+              it { should have_title('Sign in') }
+            end
     end
   end
 end
